@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Nhu Cầu Giao MAY</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+
+  <style>
+body {
+  font-family: Arial, sans-serif;
+  background: url('videoplayback.gif') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+    .header {
+  display: flex; /* Sử dụng flexbox */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  height: 15vh; /* Đặt chiều cao cho header */
+  margin-bottom: 20px; /* Thêm khoảng cách dưới */
+}
+
+.title {
+  font-size: 48px; /* Kích thước chữ lớn hơn */
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 ô mỗi hàng */
+      gap: 15px;
+      justify-items: center;
+      margin: 20px 0;
+    }
+
+    .cell-wrapper {
+      text-align: center;
+    }
+
+    .cell-name {
+      margin-bottom: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .cell {
+      width: 350px;
+      height: 130px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      font-size: 36px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cell.green {
+      background-color: #00ff00;
+      color: #003300;
+    }
+
+    .cell.red {
+      background-color: #ff0000;
+      color: white;
+      animation: blink 1s infinite;
+    }
+    .cell.expanded {
+  width: 100vw; /* Chiều rộng toàn màn hình */
+  height: 100vh; /* Chiều cao toàn màn hình */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: #ff0000; /* Màu đỏ */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 96px;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none; /* Ẩn các ô */
+}
+
+@keyframes blink {
+  0%, 100% {
+    background-color: #d1b8ba;
+  }
+  50% {
+    background-color: #ff0000;
+  }
+}
+
+.cell.red {
+  animation: blink 1s infinite; /* Hiệu ứng blink */
+}
+
+
+    .footer {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+   
+    
+    <!-- Lặp lại tương tự cho các ô khác -->
+    <!-- Thêm các audio với id tương ứng -->
+
+
+  <!-- Audio cho từng ô -->
+  <audio id="sound1" src="Sound/MAY1.mp3"></audio>
+  <audio id="sound2" src="Sound/MAY2.mp3"></audio>
+  <audio id="sound3" src="Sound/MAY3.mp3"></audio>
+  <audio id="sound4" src="Sound/MAY4.mp3"></audio>
+  <audio id="sound5" src="Sound/MAY5.mp3"></audio>
+  <audio id="sound6" src="Sound/MAY6.mp3"></audio>
+  <audio id="sound7" src="Sound/MAY7.mp3"></audio>
+  <audio id="sound8" src="Sound/MAY8.mp3"></audio>
+  <audio id="sound9" src="Sound/MAY9.mp3"></audio>
+  <audio id="sound10" src="Sound/MAY10.mp3"></audio>
+  <audio id="sound11" src="Sound/MAY11.mp3"></audio>
+  <audio id="sound12" src="Sound/MAY12.mp3"></audio>
+  <audio id="sound13" src="Sound/MAY13.mp3"></audio>
+  <audio id="sound14" src="Sound/MAY14.mp3"></audio>
+  <audio id="sound15" src="Sound/MAY15.mp3"></audio>
+  <audio id="sound16" src="Sound/MAY16.mp3"></audio>
+  <!-- Thêm tiếp các audio khác -->
+
+  <script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyDMvEuZNoZ5smw-RDCPAxCQJG2e7P62Bio",
+    authDomain: "htdb-1ci.firebaseapp.com",
+    databaseURL: "https://htdb-1ci-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "htdb-1ci",
+    storageBucket: "htdb-1ci.firebasestorage.app",
+    messagingSenderId: "973530509810",
+    appId: "1:973530509810:web:b2a4b9eeba4ccbb492fb6b"
+  };
+  const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    function toggleStatus(cell) {
+      const cellId = cell.getAttribute('data-sound-id');
+      const isGreen = cell.classList.contains('green');
+      const newStatus = isGreen ? 'CẦN GIAO HÀNG' : 'ĐỦ HÀNG';
+
+      firebase.database().ref('cells/' + cellId).set({
+        status: newStatus
+      });
+    }
+
+    // Lắng nghe thay đổi từ Firebase
+    firebase.database().ref('cells').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        document.querySelectorAll('.cell').forEach(cell => {
+          const cellId = cell.getAttribute('data-sound-id');
+          if (data[cellId]) {
+            const status = data[cellId].status;
+            if (status === 'CẦN GIAO HÀNG') {
+              cell.textContent = 'CẦN GIAO HÀNG';
+              cell.classList.remove('green');
+              cell.classList.add('red');
+            } else {
+              cell.textContent = 'ĐỦ HÀNG';
+              cell.classList.remove('red');
+              cell.classList.add('green');
+            }
+          }
+        });
+      }
+    });
+    function resetToGreen(cell, cellId) {
+  cell.textContent = 'ĐỦ HÀNG';
+  cell.classList.remove('red', 'expanded');
+  cell.classList.add('green');
+  document.querySelectorAll('.cell').forEach(el => {
+    el.classList.remove('hidden');
+  });
+
+  // Cập nhật Firebase
+  firebase.database().ref('cells/' + cellId).set({
+    status: 'ĐỦ HÀNG'
+  });
+    // Lưu trữ trạng thái phát âm thanh của từng ô
+    const soundIntervals = {};
+    const resetTimers = {};
+  
+    function toggleStatus(cell) {
+      const soundId = cell.getAttribute('data-sound-id');
+      const soundElement = document.getElementById(soundId);
+  
+      if (cell.classList.contains('green')) {
+        // Chuyển sang trạng thái "CẦN GIAO HÀNG"
+        document.querySelectorAll('.cell').forEach(el => {
+      if (el !== cell) {
+        el.classList.add('hidden');
+      }
+    });
+
+    // Chuyển sang trạng thái mở rộng và "CẦN GIAO HÀNG"
+    cell.textContent = 'CẦN GIAO HÀNG';
+    cell.classList.remove('green');
+    cell.classList.add('expanded', 'red'); // Hiệu ứng "blink"
+  
+        // Phát âm thanh liên tục
+        soundIntervals[soundId] = setInterval(() => {
+          soundElement.play();
+        }, 4000); // Lặp lại âm thanh mỗi 5 giây
+  
+        // Đặt hẹn giờ để tự động chuyển về "ĐỦ HÀNG" sau 15 giây
+        resetTimers[soundId] = setTimeout(() => {
+          resetToGreen(cell, soundId);
+        }, 25000); // 15 giây
+      } else {
+        // Chuyển lại trạng thái "ĐỦ HÀNG" ngay lập tức khi click lại
+        resetToGreen(cell, soundId);
+      }
+    }
+  
+    function resetToGreen(cell, soundId) {
+      // Chuyển lại trạng thái "ĐỦ HÀNG"
+      cell.textContent = 'ĐỦ HÀNG';
+      cell.classList.remove('red', 'expanded');
+      cell.classList.add('green');
+      document.querySelectorAll('.cell').forEach(el => {
+        el.classList.remove('hidden');
+      });
+      // Dừng phát âm thanh
+      clearInterval(soundIntervals[soundId]);
+      delete soundIntervals[soundId];
+  
+      // Hủy bỏ hẹn giờ nếu có
+      if (resetTimers[soundId]) {
+        clearTimeout(resetTimers[soundId]);
+        delete resetTimers[soundId];
+      }
+    }
+}
+   
+  </script>
+</body>
+</html>
